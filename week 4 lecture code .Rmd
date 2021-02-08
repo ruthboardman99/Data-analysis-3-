@@ -1,0 +1,116 @@
+---
+title: "week 4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r}
+library(tidyverse)
+dfStable <- read_tsv("UKDA-6614-tab/tab/ukhls_wx/xwavedat.tab")
+```
+
+This is a cross-wave data file with stable characteristics of individuals. See the codebook at https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/search/datafile/xwavedat.
+
+Exercises.
+
+1. Select the variables for: sex (derived), date of birth (doby_dv), ethnic group (racel_dv). Also keep the cross-wave identifier (pidp) and the sample origin variable (memorig).
+
+    ```{r}
+
+    dfStable1 <- dfStable %>%
+      select(pidp, memorig, sex_dv, doby_dv, racel_dv)
+    ```
+
+2. Filter the data to keep:
+        a) men only.
+        b) people born before 1950 and after 1975.
+        c) men of Pakistani origin born in 1958 or 1982. 
+
+
+    ```{r}
+
+    dfStable1 %>% 
+      filter(sex_dv == 1)
+    
+    dfStable1 %>% count(doby_dv)
+    dfStable1 %>%
+      filter(doby_dv > 0 & (doby_dv < 1950 | doby_dv > 1975))
+    
+      dfStable1 %>%
+      filter(racel_dv == 10)
+      
+      dfStable1 %>%
+        filter(sex_dv ==1 &racel_dv == 10 & doby_dv >0 & (doby_dv < 1950 | doby_dv > 1975))
+   
+    ```
+
+3. Recode birth year into cohorts (a new variable): the G.I. Generation (born before 1924), Silent Generation (1925-42), Baby Boomers (1943-65), Generation X (1966-1980), Millenials (1981-99), Generation Z (2000-). (The years are approximate.)
+
+    ```{r}
+    
+   dfStable1 <-  dfStable1 %>% 
+      mutate(cohorts = case_when(
+             between(doby_dv, 0, 1924) ~ "G.I Generation", 
+             between(doby_dv, 1925, 1942) ~ "Silent Generation", 
+             between(doby_dv, 1943, 1965) ~ "Baby Boomers", 
+             between(doby_dv, 1966, 1980) ~ "Generation X", 
+             between(doby_dv, 1981, 1999) ~ "Millenials", 
+             doby_dv > 2000 ~ "Generation Z"
+             )) 
+    
+   dfStable1 %>% count(cohorts)
+           
+                              
+             
+    ```
+
+4. Recode ethnicity into the following groups: white British, Other White, Indian, Pakistani, other. (This classification doesn't make much sense, but we're doing this as an exercise).
+
+
+    ```{r}
+      dfStable1 <- dfStable1 %>%
+      mutate(ethNEW = recode(racel_dv,
+        '1' = "White British", 
+        '2' = "Other British", 
+        '3' = "other white", 
+        '9' = "Indian", 
+        '10' = "Pakistani", 
+        '-9' = NA_character_,
+        .default = "other"
+      )) 
+    
+    dfStable1%>% count(ethNEW)
+    ```
+
+
+5. Count the number of people belonging to different ethnic groups (and produce percentages). 
+
+    ```{r}
+    dfStable1 %>%
+      count(ethNEW) %>%
+      mutate(perc = n / sum(n) * 100)
+    ```
+
+6. Summarise the proportion of white British by generation.
+
+    ```{r}
+    
+    dfStable1 %>%
+  filter(racel_dv != -9) %>%
+  mutate(whiteBritish = ifelse(racel_dv == 1, 1, 0)) %>%
+  group_by(cohorts) %>%
+  summarise(
+propWhiteBritish = mean(whiteBritish, na.rm = TRUE) * 100
+  )
+     
+    ```

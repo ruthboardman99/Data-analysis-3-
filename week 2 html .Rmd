@@ -1,0 +1,65 @@
+---
+title: "Week 2"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+# Data Analysis in Social Science 3 (2021)
+# AB
+# 17 Jan 2021
+
+## practicing R to get back into it 
+
+```{r}
+library(tidyverse)
+```
+
+# read data into R 
+
+```{r}
+data("USArrests")
+head(USArrests)
+```
+## tasks for today 
+
+1. Extract a vector with the names of the states. 
+```{r}
+states <- row.names(USArrests)
+states 
+```
+
+2. CReate a new data set that only includes states with the murder rate of > 10. 
+```{r}
+df1 <- subset(USArrests, Murder > 10)
+df1
+
+USArrests[USArrests$Murder > 10]
+```
+
+3. Create a new data set that only includes the first 15 states in the orginal data set. 
+```{r}
+df2 <- USArrests[1:15,]
+df2
+```
+
+
+6. Knit your document as pdf, html and Word files.
+
+```{r}
+```
+
+7. Change the document settings so that the code is not displayed, and messages and warnings are not shown. Set cache to TRUE. When do you ant to use cache? Can you change these settings for individuals chunks of code?
+```{r}
+
+```
+
